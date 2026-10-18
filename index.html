@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAA Mini Project - String Matching</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f5fa;
+    margin: 0;
+    padding: 30px 15px;
+    color: #172033;
+}
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px #0001;
+}
+h1 { color: #174ea6; }
+input, button {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 16px;
+    font-size: 16px;
+    border-radius: 7px;
+}
+input { border: 1px solid #bbb; }
+button {
+    background: #174ea6;
+    color: white;
+    border: 0;
+    cursor: pointer;
+}
+.result {
+    background: #eef4ff;
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow-wrap: anywhere;
+}
+code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>DAA Mini Project</h1>
+<h2>String Matching Algorithms</h2>
+<p><b>Algorithms:</b> Naive String Matching and Rabin-Karp</p>
+
+<label for="text"><b>Text to search in</b></label>
+<input id="text" value="AABAACAADAABAABA">
+
+<label for="pattern"><b>Enter pattern</b></label>
+<input id="pattern" placeholder="Example: AABA">
+
+<button onclick="searchPattern()">Search Pattern</button>
+
+<div id="results" class="result" aria-live="polite">
+Enter a pattern and click Search Pattern.
+</div>
+</div>
+
+<script>
+function naiveMatching(text, pattern) {
+    const positions = [];
+    if (pattern.length === 0) return positions;
+
+    for (let i = 0; i <= text.length - pattern.length; i++) {
+        let j = 0;
+        while (j < pattern.length && text[i + j] === pattern[j]) {
+            j++;
+        }
+        if (j === pattern.length) positions.push(i);
+    }
+    return positions;
+}
+
+function rabinKarp(text, pattern) {
+    const positions = [];
+    const n = text.length;
+    const m = pattern.length;
+    if (m === 0 || m > n) return positions;
+
+    const base = 256;
+    const prime = 101;
+    let patternHash = 0;
+    let windowHash = 0;
+    let highestPower = 1;
+
+    for (let i = 0; i < m - 1; i++) {
+        highestPower = (highestPower * base) % prime;
+    }
+
+    for (let i = 0; i < m; i++) {
+        patternHash = (base * patternHash + pattern.charCodeAt(i)) % prime;
+        windowHash = (base * windowHash + text.charCodeAt(i)) % prime;
+    }
+
+    for (let i = 0; i <= n - m; i++) {
+        if (patternHash === windowHash &&
+            text.substring(i, i + m) === pattern) {
+            positions.push(i);
+        }
+
+        if (i < n - m) {
+            windowHash = (
+                base * (windowHash - text.charCodeAt(i) * highestPower)
+                + text.charCodeAt(i + m)
+            ) % prime;
+
+            if (windowHash < 0) windowHash += prime;
+        }
+    }
+
+    return positions;
+}
+
+function searchPattern() {
+    const text = document.getElementById("text").value;
+    const pattern = document.getElementById("pattern").value;
+    const output = document.getElementById("results");
+
+    if (!pattern) {
+        output.textContent = "Please enter a non-empty pattern.";
+        return;
+    }
+
+    const naive = naiveMatching(text, pattern);
+    const rk = rabinKarp(text, pattern);
+
+    output.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Results";
+    output.appendChild(heading);
+
+    [
+        ["Naive Matching positions (0-based)", naive],
+        ["Rabin-Karp positions (0-based)", rk],
+        ["Positions starting from 1", naive.map(p => p + 1)],
+        ["Both algorithms agree", String(
+            JSON.stringify(naive) === JSON.stringify(rk)
+        )]
+    ].forEach(([label, value]) => {
+        const p = document.createElement("p");
+        p.textContent = label + ": " + (
+            Array.isArray(value) ? JSON.stringify(value) : value
+        );
+        output.appendChild(p);
+    });
+}
+</script>
+</body>
+</html>
