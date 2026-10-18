@@ -1,160 +1,414 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAA Mini Project - String Matching</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f2f5fa;
-    margin: 0;
-    padding: 30px 15px;
-    color: #172033;
-}
-.container {
-    max-width: 700px;
-    margin: auto;
-    background: white;
-    padding: 28px;
-    border-radius: 14px;
-    box-shadow: 0 4px 18px #0001;
-}
-h1 { color: #174ea6; }
-input, button {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0 16px;
-    font-size: 16px;
-    border-radius: 7px;
-}
-input { border: 1px solid #bbb; }
-button {
-    background: #174ea6;
-    color: white;
-    border: 0;
-    cursor: pointer;
-}
-.result {
-    background: #eef4ff;
-    padding: 14px;
-    border-radius: 8px;
-    margin-top: 12px;
-    overflow-wrap: anywhere;
-}
-code { overflow-wrap: anywhere; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAA Mini Project | String Matching</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5fb;
+            color: #1e293b;
+            margin: 0;
+            padding: 25px 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 5px 22px rgba(0, 0, 0, 0.08);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            color: #174ea6;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            color: #174ea6;
+            font-size: 21px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 18px 0 8px;
+        }
+
+        textarea,
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 16px;
+            font-family: monospace;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border: none;
+            border-radius: 7px;
+            background: #174ea6;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #123b7a;
+        }
+
+        .secondary {
+            background: #475569;
+            margin-top: 10px;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .result p {
+            line-height: 1.6;
+        }
+
+        .result code {
+            color: #174ea6;
+            font-weight: bold;
+        }
+
+        .algorithm {
+            background: #eef4ff;
+            padding: 12px;
+            border-radius: 7px;
+            margin-top: 12px;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #166534;
+        }
+
+        footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 <div class="container">
-<h1>DAA Mini Project</h1>
-<h2>String Matching Algorithms</h2>
-<p><b>Algorithms:</b> Naive String Matching and Rabin-Karp</p>
 
-<label for="text"><b>Text to search in</b></label>
-<input id="text" value="AABAACAADAABAABA">
+    <header>
+        <h1>DAA Mini Project</h1>
+        <h2>String Matching Algorithms</h2>
+        <p class="subtitle">
+            Implementation and comparison of Naive String Matching
+            and Rabin-Karp Algorithm using a rolling hash.
+        </p>
+    </header>
 
-<label for="pattern"><b>Enter pattern</b></label>
-<input id="pattern" placeholder="Example: AABA">
+    <label for="text">1. Enter the text to search in</label>
+    <textarea id="text"
+        placeholder="Enter any text here..."></textarea>
 
-<button onclick="searchPattern()">Search Pattern</button>
+    <label for="pattern">2. Enter the pattern to find</label>
+    <input id="pattern"
+        type="text"
+        placeholder="Enter the pattern here...">
 
-<div id="results" class="result" aria-live="polite">
-Enter a pattern and click Search Pattern.
-</div>
+    <button type="button" onclick="searchPattern()">
+        Search Pattern
+    </button>
+
+    <button type="button" class="secondary"
+        onclick="clearFields()">
+        Clear
+    </button>
+
+    <section id="results" class="result" aria-live="polite">
+        <h3>Results will appear here</h3>
+        Enter both the text and pattern, then click Search Pattern.
+    </section>
+
+    <footer>
+        DAA Mini Project | Naive Matching and Rabin-Karp
+    </footer>
 </div>
 
 <script>
-function naiveMatching(text, pattern) {
-    const positions = [];
-    if (pattern.length === 0) return positions;
+    // Algorithm 1: Naive String Matching
+    function naiveMatching(text, pattern) {
+        const positions = [];
+        const n = text.length;
+        const m = pattern.length;
 
-    for (let i = 0; i <= text.length - pattern.length; i++) {
-        let j = 0;
-        while (j < pattern.length && text[i + j] === pattern[j]) {
-            j++;
-        }
-        if (j === pattern.length) positions.push(i);
-    }
-    return positions;
-}
-
-function rabinKarp(text, pattern) {
-    const positions = [];
-    const n = text.length;
-    const m = pattern.length;
-    if (m === 0 || m > n) return positions;
-
-    const base = 256;
-    const prime = 101;
-    let patternHash = 0;
-    let windowHash = 0;
-    let highestPower = 1;
-
-    for (let i = 0; i < m - 1; i++) {
-        highestPower = (highestPower * base) % prime;
-    }
-
-    for (let i = 0; i < m; i++) {
-        patternHash = (base * patternHash + pattern.charCodeAt(i)) % prime;
-        windowHash = (base * windowHash + text.charCodeAt(i)) % prime;
-    }
-
-    for (let i = 0; i <= n - m; i++) {
-        if (patternHash === windowHash &&
-            text.substring(i, i + m) === pattern) {
-            positions.push(i);
+        if (m === 0 || m > n) {
+            return positions;
         }
 
-        if (i < n - m) {
-            windowHash = (
-                base * (windowHash - text.charCodeAt(i) * highestPower)
-                + text.charCodeAt(i + m)
-            ) % prime;
+        for (let i = 0; i <= n - m; i++) {
+            let j = 0;
 
-            if (windowHash < 0) windowHash += prime;
+            while (j < m && text[i + j] === pattern[j]) {
+                j++;
+            }
+
+            if (j === m) {
+                positions.push(i);
+            }
         }
+
+        return positions;
     }
 
-    return positions;
-}
+    // Algorithm 2: Rabin-Karp with rolling hash
+    function rabinKarp(text, pattern) {
+        const positions = [];
+        const n = text.length;
+        const m = pattern.length;
 
-function searchPattern() {
-    const text = document.getElementById("text").value;
-    const pattern = document.getElementById("pattern").value;
-    const output = document.getElementById("results");
+        if (m === 0 || m > n) {
+            return positions;
+        }
 
-    if (!pattern) {
-        output.textContent = "Please enter a non-empty pattern.";
-        return;
+        const base = 256;
+        const prime = 101;
+
+        let patternHash = 0;
+        let windowHash = 0;
+        let highestPower = 1;
+
+        // Calculate base^(m-1) modulo prime.
+        for (let i = 0; i < m - 1; i++) {
+            highestPower =
+                (highestPower * base) % prime;
+        }
+
+        // Calculate initial pattern and text-window hashes.
+        for (let i = 0; i < m; i++) {
+            patternHash =
+                (base * patternHash + pattern.charCodeAt(i))
+                % prime;
+
+            windowHash =
+                (base * windowHash + text.charCodeAt(i))
+                % prime;
+        }
+
+        // Slide the window across the text.
+        for (let i = 0; i <= n - m; i++) {
+
+            // Verify characters when the hashes match.
+            if (
+                patternHash === windowHash &&
+                text.substring(i, i + m) === pattern
+            ) {
+                positions.push(i);
+            }
+
+            // Rolling hash: remove the old character,
+            // shift the hash, and add the new character.
+            if (i < n - m) {
+                windowHash = (
+                    base *
+                    (windowHash -
+                     text.charCodeAt(i) * highestPower)
+                    + text.charCodeAt(i + m)
+                ) % prime;
+
+                if (windowHash < 0) {
+                    windowHash += prime;
+                }
+            }
+        }
+
+        return positions;
     }
 
-    const naive = naiveMatching(text, pattern);
-    const rk = rabinKarp(text, pattern);
+    // Display results from both algorithms.
+    function searchPattern() {
+        const text = document.getElementById("text").value;
+        const pattern =
+            document.getElementById("pattern").value;
+        const output = document.getElementById("results");
 
-    output.replaceChildren();
+        if (text.length === 0 || pattern.length === 0) {
+            output.textContent =
+                "Please enter both the text and the pattern.";
+            return;
+        }
 
-    const heading = document.createElement("h3");
-    heading.textContent = "Results";
-    output.appendChild(heading);
+        const naivePositions = naiveMatching(text, pattern);
+        const rkPositions = rabinKarp(text, pattern);
 
-    [
-        ["Naive Matching positions (0-based)", naive],
-        ["Rabin-Karp positions (0-based)", rk],
-        ["Positions starting from 1", naive.map(p => p + 1)],
-        ["Both algorithms agree", String(
-            JSON.stringify(naive) === JSON.stringify(rk)
-        )]
-    ].forEach(([label, value]) => {
-        const p = document.createElement("p");
-        p.textContent = label + ": " + (
-            Array.isArray(value) ? JSON.stringify(value) : value
+        output.replaceChildren();
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Search Results";
+        output.appendChild(heading);
+
+        function addResult(label, value) {
+            const p = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = label + ": ";
+            p.appendChild(strong);
+
+            const code = document.createElement("code");
+            code.textContent = value;
+            p.appendChild(code);
+
+            output.appendChild(p);
+        }
+
+        addResult("Text", text);
+        addResult("Pattern", pattern);
+        addResult(
+            "Text length",
+            String(text.length) + " characters"
         );
-        output.appendChild(p);
-    });
-}
+        addResult(
+            "Pattern length",
+            String(pattern.length) + " characters"
+        );
+
+        const naiveBox = document.createElement("div");
+        naiveBox.className = "algorithm";
+
+        const naiveTitle = document.createElement("h4");
+        naiveTitle.textContent = "1. Naive String Matching";
+        naiveBox.appendChild(naiveTitle);
+
+        const naiveResult = document.createElement("p");
+        naiveResult.textContent =
+            "Matching positions (0-based): " +
+            JSON.stringify(naivePositions);
+        naiveBox.appendChild(naiveResult);
+
+        output.appendChild(naiveBox);
+
+        const rkBox = document.createElement("div");
+        rkBox.className = "algorithm";
+
+        const rkTitle = document.createElement("h4");
+        rkTitle.textContent = "2. Rabin-Karp Algorithm";
+        rkBox.appendChild(rkTitle);
+
+        const rkResult = document.createElement("p");
+        rkResult.textContent =
+            "Matching positions (0-based): " +
+            JSON.stringify(rkPositions);
+        rkBox.appendChild(rkResult);
+
+        const explanation = document.createElement("p");
+        explanation.textContent =
+            "Rabin-Karp calculates a rolling hash for each text " +
+            "window and verifies the characters when hashes match.";
+        rkBox.appendChild(explanation);
+
+        output.appendChild(rkBox);
+
+        addResult(
+            "Positions starting from 1",
+            JSON.stringify(naivePositions.map(p => p + 1))
+        );
+
+        const agree =
+            JSON.stringify(naivePositions) ===
+            JSON.stringify(rkPositions);
+
+        const status = document.createElement("p");
+        status.className = "status";
+        status.textContent = agree
+            ? "Verification: Both algorithms agree."
+            : "Verification: Results differ. Check the algorithms.";
+
+        output.appendChild(status);
+
+        if (naivePositions.length === 0) {
+            const message = document.createElement("p");
+            message.textContent =
+                "Pattern not found in the entered text.";
+            output.appendChild(message);
+        } else {
+            const message = document.createElement("p");
+            message.textContent =
+                "Total occurrences found: " +
+                naivePositions.length;
+            output.appendChild(message);
+        }
+    }
+
+    // Clear the inputs and reset the result area.
+    function clearFields() {
+        document.getElementById("text").value = "";
+        document.getElementById("pattern").value = "";
+
+        const output = document.getElementById("results");
+        output.replaceChildren();
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Results will appear here";
+        output.appendChild(heading);
+
+        output.appendChild(
+            document.createTextNode(
+                "Enter both the text and pattern, then click Search Pattern."
+            )
+        );
+    }
+</script>
+</body>
+</html>
+
 </script>
 </body>
 </html>
